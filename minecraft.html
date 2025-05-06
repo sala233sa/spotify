@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Pelea contra Sans</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: rgb(151, 76, 128);
+      font-family: monospace;
+      text-align: center;
+    }
+    #gameCanvas {
+      background-color: #111;
+      display: none;
+      margin: 0 auto;
+      border: 3px solid rgb(29, 155, 172);
+    }
+    #hud {
+      color: red;
+      font-size: 20px;
+      margin-top: 5px;
+    }
+    #faseDisplay {
+      color: rgb(53, 17, 172);
+      font-size: 22px;
+      margin-top: 10px;
+      border-style: dotted;
+      background-color: rgb(18, 9, 17);
+      border-color: aqua;
+    }
+    #startBtn, #victoryBtn, #retryBtn, #backBtn {
+      font-size: 20px;
+      padding: 10px 20px;
+      margin-top: 20px;
+      cursor: pointer;
+      display: inline-block;
+    }
+    #sansImage {
+      width: 150px;
+      height: 150px;
+      margin: 10px auto 0 auto;
+      display: block;
+      border-radius: 30px;
+    }
+  </style>
+</head>
+<body>
+
+<img id="sansImage" src="sans1.gif" alt="Sans">
+<div id="faseDisplay">Fase: 1</div>
+<canvas id="gameCanvas" width="600" height="400"></canvas>
+
+<div id="hud">❤️ HP: 100</div>
+
+<button id="startBtn">Comenzar</button>
+<button id="victoryBtn" style="display:none;" onclick="window.location.href='spotify_login.html'">Conectar con Spotify</button>
+<button id="retryBtn" style="display:none;" onclick="location.reload()">Reintentar</button>
+<button id="backBtn" style="display:none;" onclick="window.location.href='index.html'">Volver</button>
+
+<script>
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
+  const hud = document.getElementById("hud");
+  const startBtn = document.getElementById("startBtn");
+  const victoryBtn = document.getElementById("victoryBtn");
+  const retryBtn = document.getElementById("retryBtn");
+  const backBtn = document.getElementById("backBtn");
+  const faseDisplay = document.getElementById("faseDisplay");
+  const sansImage = document.getElementById("sansImage");
+
+  let mouseX = 300, mouseY = 200;
+  let hp = 100;
+  let phase = 1;
+  let totalBones = 0;
+  let lastHitTime = 0;
+  let gameStarted = false;
+  let finalWaveReleased = false;
+  let phase3Waves = 0;
+
+  const heart = { x: 300, y: 200, size: 15 };
+  const bones = [];
+
+  const heartImg = new Image();
+  heartImg.src = "corazon f.png";
+
+  const boneImgs = {
+    1: new Image(),
+    2: new Image(),
+    3: new Image()
+  };
+
+  boneImgs[1].src = "esqueleto.jpg";
+  boneImgs[2].src = "zombie.jpg";
+  boneImgs[3].src = "Minecraft-creeper-face.jpg";
+
+  const sansImages = {
+    1: "sans1.gif",
+    2: "Sans.webp",
+    3: "ajolote.webp",
+    final: "sans final.gif"
+  };
+
+  function updateSansImage() {
+    sansImage.src = sansImages[phase] || sansImages.final;
+  }
+
+  function spawnBone() {
+    if (!gameStarted) return;
+
+    if (phase === 1) {
+      bones.push({
+        x: Math.random() * (canvas.width - 50),
+        y: -50,
+        width: 50,
+        height: 50,
+        speedY: 28,
+        speedX: 2,
+        type: "vertical",
+        phase
+      });
+      totalBones++;
+      if (totalBones >= 23) {
+        phase = 2;
+        updateSansImage();
+      }
+
+    } else if (phase === 2) {
+      const fromLeft = Math.random() < 0.9;
+      bones.push({
+        x: fromLeft ? -50 : canvas.width + 50,
+        y: Math.random() * (canvas.height - 50),
+        width: 50,
+        height: 50,
+        speedX: fromLeft ? 28 : -28,
+        speedY: 0,
+        type: "horizontal",
+        phase
+      });
+      totalBones++;
+      if (totalBones == 23) {
+        phase = 3;
+        updateSansImage();
+      }
+
+    } else if (phase === 3) {
+      if (phase3Waves < 26) {
+        const gapIndex = Math.floor(Math.random() * 5);
+        const rowHeight = canvas.height / 5;
+        const marginY = 2;
+        const marginSides = 90;
+
+        for (let i = 0; i < 5; i++) {
+          if (i !== gapIndex) {
+            bones.push({
+              x: canvas.width + marginSides,
+              y: i * rowHeight + marginY,
+              width: 30,
+              height: rowHeight - marginY * 2,
+              speedX: -5,
+              speedY: 0,
+              type: "wall",
+              phase,
+              canDamage: true
+            });
+          }
+        }
+
+        phase3Waves++;
+        if (phase3Waves === 26) {
+          finalWaveReleased = true;
+        }
+      }
+    }
+
+    faseDisplay.textContent = `Fase: ${phase}`;
+    if (hp > 0) hud.innerHTML = `❤️ HP: ${hp}`;
+  }
+
+  function checkCollision(bone, heart) {
+    return (
+      bone.x < heart.x + heart.size &&
+      bone.x + bone.width > heart.x - heart.size &&
+      bone.y < heart.y + heart.size &&
+      bone.y + bone.height > heart.y - heart.size
+    );
+  }
+
+  function update() {
+    const moveSpeed = 0.25;
+    heart.x += (mouseX - heart.x) * moveSpeed;
+    heart.y += (mouseY - heart.y) * moveSpeed;
+
+    const now = Date.now();
+    for (let bone of bones) {
+      bone.x += bone.speedX || 0;
+      bone.y += bone.speedY || 0;
+
+      if (checkCollision(bone, heart)) {
+        if (bone.phase === 3) {
+          if (bone.canDamage) {
+            hp -= 20;
+            bone.canDamage = false;
+            lastHitTime = now;
+          }
+        } else if (now - lastHitTime > 400) {
+          hp -= 20;
+          lastHitTime = now;
+        }
+
+        if (hp < 0) hp = 0;
+        if (hp > 0) hud.innerHTML = `❤️ HP: ${hp}`;
+      }
+    }
+
+    for (let i = bones.length - 1; i >= 0; i--) {
+      const b = bones[i];
+      if (b.x < -100 || b.x > canvas.width + 100 || b.y > canvas.height + 100) {
+        bones.splice(i, 1);
+      }
+    }
+
+    if (phase === 3 && finalWaveReleased && bones.length === 0 && hp > 0) {
+      hud.style.display = "none";
+      sansImage.src = sansImages.final;
+      hud.innerHTML = "🎉 ¡Victoria!";
+      victoryBtn.style.display = "inline-block";
+      retryBtn.style.display = "inline-block";
+      backBtn.style.display = "inline-block";
+    }
+
+    if (hp <= 0) {
+      hud.style.display = "none";
+      sansImage.src = sansImages.final;
+      hud.innerHTML = "💀 Has muerto...";
+      retryBtn.style.display = "inline-block";
+      backBtn.style.display = "inline-block";
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let bone of bones) {
+      const img = boneImgs[bone.phase];
+      ctx.drawImage(img, bone.x, bone.y, bone.width, bone.height);
+    }
+
+    ctx.drawImage(heartImg, heart.x - heart.size, heart.y - heart.size, heart.size * 2, heart.size * 2);
+  }
+
+  function gameLoop() {
+    update();
+    draw();
+    if (hp > 0 && !(phase === 3 && finalWaveReleased && bones.length === 0)) {
+      requestAnimationFrame(gameLoop);
+    }
+  }
+
+  canvas.addEventListener("mousemove", (e) => {
+    const rect = canvas.getBoundingClientRect();
+    mouseX = e.clientX - rect.left;
+    mouseY = e.clientY - rect.top;
+  });
+
+  startBtn.addEventListener("click", () => {
+    gameStarted = true;
+    canvas.style.display = "block";
+    startBtn.style.display = "none";
+    setInterval(spawnBone, 700);
+    gameLoop();
+  });
+</script>
+
+</body>
+</html>
+
