@@ -2,47 +2,24 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Minutos Escuchados (Recientes)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🎊 Feliz cumple nozo 🎊</title>
   <style>
     body {
       background-color: rgb(248, 71, 218);
       font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      padding: 0;
       color: rgb(232, 48, 155);
     }
-
-    .container {
+    #miFormulario {
       background-color: #C8A2C8;
       padding-top: 10px;
-      min-height: 100vh;
+      height: auto;
       border-radius: 30px;
       border: 3px dotted aqua;
-      box-shadow: 10px 10px 0px 0px palevioletred;
       text-align: center;
       margin: 30px;
+      box-shadow: 10px 10px 0px 0px palevioletred;
     }
-
-    h1 {
-      color: aqua;
-    }
-
-    .minutes-fixed {
-      background-color: white;
-      color: rgb(232, 48, 155);
-      padding: 10px;
-      font-size: 28px;
-      font-weight: bold;
-      border-radius: 10px;
-      margin-bottom: 20px;
-    }
-
-    .update-note {
-      font-size: 14px;
-      color: white;
-      margin-bottom: 20px;
-    }
-
     button {
       background-color: rgb(207, 47, 135);
       width: 300px;
@@ -50,70 +27,105 @@
       border-radius: 30px;
       border-style: dotted;
       border-color: rgb(140, 14, 104);
-      margin-top: 20px;
+      margin: 10px;
       cursor: pointer;
       font-weight: bold;
     }
-
     button:hover {
       background-color: rgb(236, 115, 224);
     }
-
-    h4 {
-      color: white;
-      margin-top: 30px;
-      border-bottom: 2px solid white;
-      padding-bottom: 5px;
+    input {
+      border-radius: 20px;
+      width: 300px;
+      text-align: center;
+      border-style: dotted;
+      height: 40px;
+      margin: 10px;
     }
-
-    .track-list {
-      text-align: left;
-      padding: 10px;
-      max-height: 300px;
-      overflow-y: auto;
-      background: rgba(255, 255, 255, 0.15);
-      border-radius: 10px;
-      margin: 20px;
+    .creeper, .imagen, .genshin {
+      border-radius: 20px;
+      padding: 4px;
+      border-style: double;
+      width: 100px;
     }
-
-    .track-item {
-      padding: 6px;
-      margin-bottom: 5px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+    .imagen {
+      width: 150px;
+      height: 140px;
     }
-
-    .track-count {
-      color: #80d8ff;
-      font-weight: bold;
+    .genshin {
+      width: 200px;
+      height: 130px;
+    }
+    h1 {
+      color: aqua;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Minutos Escuchados (Recientes)</h1>
-    <button id="login">Conectar con Spotify</button>
-    <button id="clearData">Borrar minutos guardados</button>
+
+  <form id="miFormulario">
+    <div>
+      <!-- Decoración superior -->
+      <img src="cree.gif" class="creeper">
+      <img src="cree.gif" class="creeper">
+      <img src="cree.gif" class="creeper">
+      <img src="cree.gif" class="creeper">
+      <img src="Captura de pantalla 2025-03-14 072725.png" class="imagen">
+      <img src="cree.gif" class="creeper">
+      <img src="cree.gif" class="creeper">
+    </div>
+
+    <h1>
+      <img src="corazon.jpg" class="creeper"> 🎊 feliz cumpleeeee 🎊 <img src="corazon.jpg" class="creeper">
+    </h1>
+
+    <div>
+      <img src="gato2.gif" class="creeper"> ⭐
+      <input type="text" id="nombre" name="nombre" placeholder="nombre" required> ⭐
+      <img src="ajolote.gif" class="creeper">
+    </div>
+
+    <div>
+      <img src="ajolote.gif" class="creeper"> ⭐
+      <input type="text" id="video" name="video" placeholder="videojuego favorito" required> ⭐
+      <img src="gato2.gif" class="creeper">
+    </div>
+
+    <div>
+      <button type="submit">Enviar</button>
+      <button type="button" id="login">Conectar con Spotify</button>
+      <button type="button" id="clearData">Borrar minutos guardados</button>
+    </div>
+
+    <p id="mensajeError" style="color:red;"></p>
     <div id="output"></div>
-  </div>
+
+    <!-- Decoración inferior -->
+    <div>
+      <img src="minecraft.gif" class="creeper">
+      <img src="esqueleto.jpg" class="creeper">
+      <img src="minecraft.gif" class="creeper">
+    </div>
+  </form>
 
   <script>
+    alert("jsjjs holisss");
+    alert("feliz cumpleeeee ");
+    alert("espero te guste jsjsj");
+
     const clientId = "c2d05e3f90e645a1828661c9d618f0d1";
     const redirectUri = window.location.origin + window.location.pathname;
     const scope = "user-read-recently-played";
 
     function generateRandomString(length) {
       const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-      let text = '';
-      for (let i = 0; i < length; i++) {
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-      }
-      return text;
+      return Array.from({ length }, () => possible.charAt(Math.floor(Math.random() * possible.length))).join('');
     }
 
     async function generateCodeChallenge(codeVerifier) {
       const encoder = new TextEncoder();
       const data = encoder.encode(codeVerifier);
-      const digest = await window.crypto.subtle.digest('SHA-256', data);
+      const digest = await crypto.subtle.digest('SHA-256', data);
       return btoa(String.fromCharCode(...new Uint8Array(digest)))
         .replace(/=/g, '')
         .replace(/\+/g, '-')
@@ -169,7 +181,6 @@
       });
 
       const data = await response.json();
-
       let trackMap = new Map();
       let totalMs = 0;
 
@@ -192,22 +203,19 @@
 
       const output = document.getElementById("output");
       output.innerHTML = `
-        <div class="minutes-fixed">${updated} minutos</div>
-        <div class="update-note">+${totalMinutes} nuevos minutos agregados de canciones recientes.</div>
-        <h4>Canciones reproducidas</h4>
-        <div class="track-list">
-          ${Array.from(trackMap.entries()).map(([name, count]) => `
-            <div class="track-item">
-              ${name} ${count > 1 ? `<span class="track-count">*${count}</span>` : ''}
-            </div>
-          `).join('')}
+        <div style="background:white; color:hotpink; padding:10px; font-weight:bold; border-radius:10px;">
+          ${updated} minutos
         </div>
-      `;
+        <div style="font-size:14px; color:white;">+${totalMinutes} nuevos minutos agregados de canciones recientes.</div>
+        <h4 style="color:white;">Canciones reproducidas</h4>
+        <div style="background:rgba(255,255,255,0.15); padding:10px; border-radius:10px; max-height:200px; overflow:auto;">
+          ${Array.from(trackMap.entries()).map(([name, count]) =>
+            `<div>${name} ${count > 1 ? `<span style="color:#80d8ff;">*${count}</span>` : ''}</div>`).join('')}
+        </div>`;
     }
 
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get("code");
-
     if (code) {
       fetchAccessToken(code).then(token => {
         getRecentTracks(token);
@@ -216,6 +224,32 @@
         document.getElementById("output").innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
       });
     }
+
+    // Validación personalizada
+    document.getElementById("miFormulario").addEventListener("submit", function(event) {
+      const nombre = document.getElementById("nombre").value.trim().toLowerCase();
+      const videojuego = document.getElementById("video").value.trim().toLowerCase();
+      const mensajeError = document.getElementById("mensajeError");
+
+      const nombreValido = ["nozo", "karla", "estefania"];
+      const videojuegoValido = {
+        "minecraft": "minecraft.html",
+        "undertale": "undertale.html",
+        "five nights at freddy's": "fnaf.html",
+        "sonic": "sonic.html",
+        "genshin impact": "genshin.html"
+      };
+
+      if (!nombreValido.includes(nombre) || !Object.keys(videojuegoValido).includes(videojuego)) {
+        mensajeError.textContent = 'Nombre o videojuego no válido';
+        event.preventDefault();
+      } else {
+        mensajeError.textContent = "";
+        event.preventDefault();
+        window.location.href = videojuegoValido[videojuego];
+      }
+    });
   </script>
 </body>
 </html>
+
