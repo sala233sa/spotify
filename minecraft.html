@@ -17,7 +17,6 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
     }
 
     .sans-box {
@@ -46,7 +45,6 @@
       border: 3px solid cyan;
       margin: 20px auto;
       display: block;
-      cursor: none;
     }
 
     #hud {
@@ -85,38 +83,33 @@
     let fase = 1;
     let hp = 100;
     const maxFases = 3;
-    const hpDisplay = document.getElementById("hp");
     const faseDisplay = document.getElementById("faseDisplay");
+    const hpDisplay = document.getElementById("hp");
 
     const player = {
       x: canvas.width / 2 - 20,
-      y: canvas.height - 50,
+      y: canvas.height - 60,
       width: 40,
       height: 40,
       img: new Image()
     };
     player.img.src = "corazon.jpg";
 
-    const enemyImages = [
-      "ajolote.gif",
-      "cree.gif",
-      "esqueleto.jpg"
-    ];
-
+    const enemyImages = ["ajolote.gif", "cree.gif", "esqueleto.jpg"];
     let enemies = [];
 
     function spawnEnemies() {
       enemies = [];
-      for (let i = 0; i < fase; i++) {
-        let img = new Image();
+      for (let i = 0; i < fase + 1; i++) {
+        const img = new Image();
         img.src = enemyImages[i % enemyImages.length];
         enemies.push({
-          x: Math.random() * (canvas.width - 50),
-          y: -Math.random() * 200,
+          x: Math.random() * (canvas.width - 40),
+          y: Math.random() * -200,
           width: 40,
           height: 40,
           img: img,
-          speed: 1 + fase * 0.5
+          speed: 1 + fase
         });
       }
     }
@@ -125,23 +118,22 @@
       enemies.forEach(enemy => {
         enemy.y += enemy.speed;
 
+        // Si toca al corazón
         if (
           enemy.x < player.x + player.width &&
           enemy.x + enemy.width > player.x &&
           enemy.y < player.y + player.height &&
           enemy.y + enemy.height > player.y
         ) {
-          enemy.y = -100;
-          enemy.x = Math.random() * (canvas.width - enemy.width);
-          if (hp > 0) {
-            hp -= 10;
-            updateHUD();
-          }
+          hp -= 10;
+          enemy.y = -50;
+          enemy.x = Math.random() * (canvas.width - 40);
         }
 
+        // Si sale de la pantalla
         if (enemy.y > canvas.height) {
-          enemy.y = -50;
-          enemy.x = Math.random() * (canvas.width - enemy.width);
+          enemy.y = -40;
+          enemy.x = Math.random() * (canvas.width - 40);
         }
       });
     }
@@ -156,50 +148,45 @@
       });
     }
 
-    function updateHUD() {
-      faseDisplay.textContent = "Fase: " + fase;
-      hpDisplay.textContent = hp;
-    }
-
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       drawPlayer();
       drawEnemies();
     }
 
+    function updateHUD() {
+      faseDisplay.textContent = "Fase: " + fase;
+      hpDisplay.textContent = hp;
+    }
+
     function gameLoop() {
       updateEnemies();
       draw();
+      updateHUD();
       requestAnimationFrame(gameLoop);
     }
 
     // Mover el corazón con el mouse
-    canvas.addEventListener("mousemove", (e) => {
+    canvas.addEventListener("mousemove", function (e) {
       const rect = canvas.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      const mouseY = e.clientY - rect.top;
-
-      player.x = mouseX - player.width / 2;
-      player.y = mouseY - player.height / 2;
+      player.x = e.clientX - rect.left - player.width / 2;
+      player.y = e.clientY - rect.top - player.height / 2;
     });
 
-    // Subir de fase automáticamente cada 10 segundos
+    // Avanzar de fase cada 15 segundos
     setInterval(() => {
       if (fase < maxFases) {
         fase++;
         spawnEnemies();
         updateHUD();
       }
-    }, 10000); // 10 segundos por fase
+    }, 15000);
 
-    // Inicializar juego
-    spawnEnemies();
-    updateHUD();
+    // Iniciar
     player.img.onload = () => {
+      spawnEnemies();
       gameLoop();
     };
   </script>
 </body>
 </html>
-
-
