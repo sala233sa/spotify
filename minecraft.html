@@ -46,6 +46,7 @@
       border: 3px solid cyan;
       margin: 20px auto;
       display: block;
+      cursor: none;
     }
 
     #hud {
@@ -83,12 +84,13 @@
 
     let fase = 1;
     let hp = 100;
+    const maxFases = 3;
     const hpDisplay = document.getElementById("hp");
     const faseDisplay = document.getElementById("faseDisplay");
 
     const player = {
       x: canvas.width / 2 - 20,
-      y: canvas.height - 60,
+      y: canvas.height - 50,
       width: 40,
       height: 40,
       img: new Image()
@@ -98,9 +100,7 @@
     const enemyImages = [
       "ajolote.gif",
       "cree.gif",
-      "esqueleto.jpg",
-      "gato2.gif",
-      "minecraft.gif"
+      "esqueleto.jpg"
     ];
 
     let enemies = [];
@@ -109,16 +109,41 @@
       enemies = [];
       for (let i = 0; i < fase; i++) {
         let img = new Image();
-        img.src = enemyImages[i];
+        img.src = enemyImages[i % enemyImages.length];
         enemies.push({
-          x: 50 + i * 80,
-          y: 10,
-          width: 50,
-          height: 50,
+          x: Math.random() * (canvas.width - 50),
+          y: -Math.random() * 200,
+          width: 40,
+          height: 40,
           img: img,
-          speed: 1 + i * 0.3
+          speed: 1 + fase * 0.5
         });
       }
+    }
+
+    function updateEnemies() {
+      enemies.forEach(enemy => {
+        enemy.y += enemy.speed;
+
+        if (
+          enemy.x < player.x + player.width &&
+          enemy.x + enemy.width > player.x &&
+          enemy.y < player.y + player.height &&
+          enemy.y + enemy.height > player.y
+        ) {
+          enemy.y = -100;
+          enemy.x = Math.random() * (canvas.width - enemy.width);
+          if (hp > 0) {
+            hp -= 10;
+            updateHUD();
+          }
+        }
+
+        if (enemy.y > canvas.height) {
+          enemy.y = -50;
+          enemy.x = Math.random() * (canvas.width - enemy.width);
+        }
+      });
     }
 
     function drawPlayer() {
@@ -128,26 +153,6 @@
     function drawEnemies() {
       enemies.forEach(enemy => {
         ctx.drawImage(enemy.img, enemy.x, enemy.y, enemy.width, enemy.height);
-      });
-    }
-
-    function updateEnemies() {
-      enemies.forEach(enemy => {
-        enemy.y += enemy.speed;
-
-        // Detección de colisión con el corazón
-        if (
-          enemy.x < player.x + player.width &&
-          enemy.x + enemy.width > player.x &&
-          enemy.y < player.y + player.height &&
-          enemy.y + enemy.height > player.y
-        ) {
-          enemy.y = -100; // reiniciar posición
-          if (hp > 0) {
-            hp -= 10;
-            updateHUD();
-          }
-        }
       });
     }
 
@@ -168,14 +173,24 @@
       requestAnimationFrame(gameLoop);
     }
 
-    // Subir de fase con ESPACIO
-    window.addEventListener("keydown", (e) => {
-      if (e.code === "Space" && fase < enemyImages.length) {
+    // Mover el corazón con el mouse
+    canvas.addEventListener("mousemove", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      player.x = mouseX - player.width / 2;
+      player.y = mouseY - player.height / 2;
+    });
+
+    // Subir de fase automáticamente cada 10 segundos
+    setInterval(() => {
+      if (fase < maxFases) {
         fase++;
         spawnEnemies();
         updateHUD();
       }
-    });
+    }, 10000); // 10 segundos por fase
 
     // Inicializar juego
     spawnEnemies();
