@@ -2,87 +2,85 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Pelea contra Sans</title>
+  <title>¡Pelea contra Sans!</title>
   <style>
     body {
-      background-color: #94467d;
-      margin: 0;
-      font-family: monospace;
+      background-color: black;
+      color: white;
       text-align: center;
+      font-family: Arial, sans-serif;
     }
-    #contenedor {
-      margin-top: 40px;
-    }
-    canvas {
-      background: black;
-      border: 2px solid cyan;
-      display: block;
-      margin: 0 auto;
-    }
-    #hp {
-      color: red;
-      font-size: 20px;
-      margin-top: 10px;
-    }
-    #fase {
-      color: blueviolet;
-      margin-top: 10px;
-      font-size: 20px;
-      border: 2px dotted cyan;
-      display: inline-block;
-      padding: 5px 15px;
-    }
-    #sans {
-      width: 40px;
-      height: auto;
-      margin-bottom: 10px;
+    h1 {
+      margin-top: 20px;
     }
     #victoria {
       display: none;
       color: cyan;
-      font-size: 28px;
+      font-size: 32px;
       margin-top: 20px;
+    }
+    #sans-img {
+      width: 150px;
+      margin-top: 10px;
+    }
+    canvas {
+      background-color: #1c1c1c;
+      border: 2px solid #00ffff;
+      margin-top: 20px;
+    }
+    .botones {
+      margin-top: 20px;
+    }
+    .botones button {
+      background-color: cyan;
+      border: none;
+      padding: 10px 20px;
+      margin: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #hp {
+      margin-top: 10px;
+      font-size: 18px;
     }
   </style>
 </head>
 <body>
-  <div id="contenedor">
-    <img src="Sans.webp" id="sans" alt="Sans">
-    <div id="fase">Fase: 1</div>
-    <canvas id="gameCanvas" width="600" height="400"></canvas>
-    <div id="hp">❤️ HP: 100</div>
-    <div id="victoria">🎉 ¡Victoria!</div>
+  <h1>¡Pelea contra Sans!</h1>
+  <div id="victoria">
+    🎉 <strong>¡Victoria!</strong> 🎉<br>
+    <img id="sans-img" src="a73f5cbf-eda5-445f-9dca-03733438aef0.png" alt="Sans celebrando">
+  </div>
+  <canvas id="gameCanvas" width="500" height="400"></canvas>
+  <div id="hp">❤️ HP: 100</div>
+  <div class="botones">
+    <button onclick="location.reload()">Reintentar</button>
+    <button onclick="alert('Volver aún no implementado')">Volver</button>
+    <button onclick="alert('Victoria manual aún no implementada')">Victoria</button>
   </div>
 
   <script>
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const hpEl = document.getElementById("hp");
-    const faseEl = document.getElementById("fase");
     const victoriaEl = document.getElementById("victoria");
 
     const player = {
-      x: 290,
+      x: 240,
       y: 190,
       size: 20,
-      color: "red",
       speed: 5,
-      hp: 100,
+      hp: 100
     };
 
-    let fase = 1;
-    let frame = 0;
-    let attacks = [];
     let keys = {};
+    let attacks = [];
+    let frame = 0;
+    let fase = 1;
     let gameOver = false;
 
-    document.addEventListener("keydown", (e) => {
-      keys[e.key] = true;
-    });
-
-    document.addEventListener("keyup", (e) => {
-      keys[e.key] = false;
-    });
+    document.addEventListener("keydown", e => keys[e.key] = true);
+    document.addEventListener("keyup", e => keys[e.key] = false);
 
     function updatePlayer() {
       if (keys["ArrowUp"] && player.y > 0) player.y -= player.speed;
@@ -91,44 +89,20 @@
       if (keys["ArrowRight"] && player.x + player.size < canvas.width) player.x += player.speed;
     }
 
-    function spawnAttack() {
-      if (fase === 1) {
-        if (frame % 30 === 0) {
-          attacks.push({
-            x: Math.random() * canvas.width,
-            y: 0,
-            size: 20,
-            speed: 4,
-          });
-        }
-      } else if (fase === 2) {
-        if (frame % 20 === 0) {
-          attacks.push({
-            x: Math.random() * canvas.width,
-            y: 0,
-            size: 20,
-            speed: 6,
-          });
-        }
-      } else if (fase === 3) {
-        if (frame % 10 === 0) {
-          attacks.push({
-            x: Math.random() * canvas.width,
-            y: 0,
-            size: 25,
-            speed: 8,
-          });
-        }
+    function spawnAttacks() {
+      if (frame % 30 === 0) {
+        attacks.push({
+          x: Math.random() * (canvas.width - 20),
+          y: 0,
+          size: 20,
+          speed: fase + 2
+        });
       }
     }
 
     function updateAttacks() {
-      attacks.forEach((a) => {
-        a.y += a.speed;
-      });
-
-      attacks = attacks.filter((a) => a.y < canvas.height);
-
+      for (let a of attacks) a.y += a.speed;
+      attacks = attacks.filter(a => a.y < canvas.height);
       for (let a of attacks) {
         if (
           player.x < a.x + a.size &&
@@ -141,82 +115,62 @@
       }
     }
 
-    function drawPlayer() {
-      ctx.fillStyle = player.color;
+    function drawEverything() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "red";
       ctx.fillRect(player.x, player.y, player.size, player.size);
-    }
-
-    function drawAttacks() {
       ctx.fillStyle = "white";
-      for (let a of attacks) {
-        ctx.fillRect(a.x, a.y, a.size, a.size);
-      }
+      for (let a of attacks) ctx.fillRect(a.x, a.y, a.size, a.size);
     }
 
     function checkFase() {
-      if (frame > 600 && fase === 1) {
-        fase = 2;
-        faseEl.textContent = "Fase: 2";
-        attacks = [];
-      } else if (frame > 1200 && fase === 2) {
-        fase = 3;
-        faseEl.textContent = "Fase: 3";
-        attacks = [];
-      } else if (frame > 1800 && fase === 3) {
+      if (frame > 900) {
         endGame(true);
       }
     }
 
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawPlayer();
-      drawAttacks();
-    }
-
-    function update() {
+    function updateGame() {
       if (gameOver) return;
 
       frame++;
       updatePlayer();
-      spawnAttack();
+      spawnAttacks();
       updateAttacks();
-      draw();
-
+      drawEverything();
       checkFase();
 
       hpEl.textContent = `❤️ HP: ${player.hp}`;
+
       if (player.hp <= 0) {
         endGame(false);
       }
 
-      requestAnimationFrame(update);
+      requestAnimationFrame(updateGame);
     }
 
-    function endGame(win) {
+    function endGame(victoria) {
       gameOver = true;
-      if (win) {
+      if (victoria) {
         victoriaEl.style.display = "block";
-        // Esperar 3 segundos y redirigir a Spotify
         setTimeout(() => {
           const clientId = "TU_CLIENT_ID";
           const redirectUri = "TU_REDIRECT_URI";
           const scope = "user-read-recently-played";
-          const verifier = btoa([...crypto.getRandomValues(new Uint8Array(32))]
-            .map(x => String.fromCharCode(x)).join(''))
-            .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+          const verifier = btoa([...crypto.getRandomValues(new Uint8Array(32))].map(x => String.fromCharCode(x)).join("")).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
           sessionStorage.setItem("verifier", verifier);
-          const challenge = verifier; // simplificado, normalmente deberías hacer SHA256 base64url
+          const challenge = verifier;
           window.location.href = `https://accounts.spotify.com/authorize?response_type=code&client_id=${clientId}&scope=${scope}&redirect_uri=${encodeURIComponent(redirectUri)}&code_challenge_method=plain&code_challenge=${challenge}`;
         }, 3000);
       } else {
-        alert("Has perdido. Recarga para intentar de nuevo.");
+        alert("¡Has perdido! Intenta de nuevo.");
       }
     }
 
-    update();
+    updateGame();
   </script>
 </body>
 </html>
+
 
 
 
