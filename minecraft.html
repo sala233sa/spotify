@@ -63,7 +63,7 @@
 <body>
   <div class="container">
     <h1>¡Pelea contra Sans!</h1>
-    
+
     <div class="sans-box">
       <img src="Sans.webp" alt="Sans">
     </div>
@@ -73,21 +73,81 @@
     <canvas id="gameCanvas" width="500" height="300"></canvas>
 
     <div id="hud">
-      <img class="heart" src="corazón_f.jpg" alt="Corazón"> HP: <span id="hp">100</span>
+      <img class="heart" src="corazon.jpg" alt="Corazón"> HP: <span id="hp">100</span>
     </div>
   </div>
 
   <script>
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
-    canvas.style.display = "block";
 
-    let heartImg = new Image();
-    heartImg.src = "corazón_f.jpg";
+    let fase = 1;
+    let hp = 100;
+    const hpDisplay = document.getElementById("hp");
+    const faseDisplay = document.getElementById("faseDisplay");
 
-    heartImg.onload = function () {
-      ctx.drawImage(heartImg, canvas.width / 2 - 20, canvas.height / 2 - 20, 40, 40);
-    };
+    const imageFiles = [
+      { src: "ajolote.gif", x: 50, y: 60 },
+      { src: "cree.gif", x: 120, y: 60 },
+      { src: "esqueleto.jpg", x: 190, y: 60 },
+      { src: "gato2.gif", x: 260, y: 60 },
+      { src: "minecraft.gif", x: 330, y: 60 }
+    ];
+
+    const enemies = [];
+
+    function loadEnemies() {
+      enemies.length = 0;
+      imageFiles.forEach((data, index) => {
+        const img = new Image();
+        img.src = data.src;
+        enemies.push({ img: img, x: data.x, y: data.y });
+      });
+    }
+
+    function drawScene() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Dibujar enemigos según la fase
+      for (let i = 0; i < fase && i < enemies.length; i++) {
+        const enemy = enemies[i];
+        ctx.drawImage(enemy.img, enemy.x, enemy.y, 50, 50);
+      }
+
+      // Corazón en el centro
+      const heart = new Image();
+      heart.src = "corazon.jpg";
+      heart.onload = () => {
+        ctx.drawImage(heart, canvas.width / 2 - 20, canvas.height - 60, 40, 40);
+      };
+    }
+
+    function updateHUD() {
+      faseDisplay.textContent = "Fase: " + fase;
+      hpDisplay.textContent = hp;
+    }
+
+    // Avanzar de fase con tecla ESPACIO y reducir vida con tecla F
+    window.addEventListener("keydown", (e) => {
+      if (e.code === "Space") {
+        if (fase < imageFiles.length) {
+          fase++;
+          drawScene();
+          updateHUD();
+        }
+      }
+
+      if (e.key.toLowerCase() === "f") {
+        if (hp > 0) {
+          hp -= 10;
+          updateHUD();
+        }
+      }
+    });
+
+    loadEnemies();
+    drawScene();
+    updateHUD();
   </script>
 </body>
 </html>
