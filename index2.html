@@ -133,7 +133,7 @@
     </div>
     <button id="pauseBtn">Pausa</button>
     <div class="controls-info">
-      Toca izquierda/derecha para mover - Arriba para rotar
+      Toca izquierda/derecha para mover - Arriba para rotar - Mantén para bajar rápido
     </div>
   </div>
   
@@ -265,6 +265,14 @@
       'grid': '#333333'
     };
 
+    // Variables para control de toques
+    let fastDrop = false;
+    let fastDropInterval = 50; // Intervalo más rápido cuando se mantiene presionado
+    let touchEndTimeout = null;
+    let isTouching = false;
+    let lastTouchTime = 0;
+    const doubleTapThreshold = 300; // ms para considerar doble toque
+
     // Piezas del Tetris
     const tetrominos = [
       { shape: [[0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0]], type: 'I' },
@@ -361,16 +369,18 @@
         arena.unshift(new Array(row.length).fill(0));
         linesCleared++;
         
-        // Calcular puntuación
+        // Calcular puntuación basada en líneas completadas y nivel
         const linePoints = [0, 40, 100, 300, 1200];
-        score += linePoints[1] * level;
+        const lines = Math.min(4, 1); // Por cada línea completada
+        score += linePoints[lines] * level;
         
         linesDisplay.textContent = linesCleared;
         scoreDisplay.textContent = score;
 
-        if (linesCleared % 10 === 0 && level < 99) {
+        // Aumentar nivel cada 10 líneas y ajustar dificultad
+        if (linesCleared >= level * 10) {
           level++;
-          dropInterval = Math.max(100, dropInterval - 50);
+          dropInterval = Math.max(100, 1000 - (level * 50)); // Disminuir intervalo (aumentar velocidad)
           levelDisplay.textContent = level;
         }
         
@@ -433,7 +443,10 @@
       lastTime = time;
       dropCounter += deltaTime;
 
-      if (dropCounter > dropInterval) {
+      // Usar el intervalo rápido si está en modo descenso rápido
+      const currentDropInterval = fastDrop ? fastDropInterval : dropInterval;
+      
+      if (dropCounter > currentDropInterval) {
         drop();
         dropCounter = 0;
       }
@@ -464,23 +477,47 @@
       }
     }
 
-    function handleTouch(e) {
+    function handleTouchStart(e) {
       if (gameOver || isPaused) return;
       
       e.preventDefault();
-      const touchX = e.touches[0].clientX;
-      const touchY = e.touches[0].clientY;
+      isTouching = true;
+      const now = Date.now();
       
-      // Calcular la mitad de la pantalla
+      // Detectar toque rápido (rotación)
+      if (now - lastTouchTime < doubleTapThreshold) {
+        rotatePiece();
+        lastTouchTime = 0;
+        return;
+      }
+      
+      lastTouchTime = now;
+      const touchX = e.touches[0].clientX;
       const halfWidth = window.innerWidth / 2;
       
+      // Mover izquierda/derecha
       if (touchX < halfWidth - 50) {
-        move(-1); // Mover izquierda
+        move(-1);
       } else if (touchX > halfWidth + 50) {
-        move(1); // Mover derecha
+        move(1);
       } else {
-        rotatePiece(); // Rotar (toque central)
+        // Centro - activar descenso rápido
+        fastDrop = true;
       }
+    }
+
+    function handleTouchEnd(e) {
+      if (gameOver || isPaused) return;
+      
+      e.preventDefault();
+      isTouching = false;
+      fastDrop = false;
+      
+      // Pequeño retraso para evitar rotación accidental después de soltar
+      if (touchEndTimeout) clearTimeout(touchEndTimeout);
+      touchEndTimeout = setTimeout(() => {
+        lastTouchTime = 0;
+      }, doubleTapThreshold);
     }
 
     // Funciones de pantalla
@@ -584,8 +621,9 @@
         picker.addEventListener('input', updateColors);
       }
       
-      // Controles táctiles
-      canvas.addEventListener('touchstart', handleTouch, { passive: false });
+      // Controles táctiles mejorados
+      canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+      canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
       canvas.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
       
       // Controles de teclado (para probar en desktop)
@@ -595,8 +633,16 @@
         switch(event.key) {
           case 'ArrowLeft': move(-1); break;
           case 'ArrowRight': move(1); break;
-          case 'ArrowDown': drop(); break;
+          case 'ArrowDown': 
+            fastDrop = true;
+            break;
           case 'ArrowUp': rotatePiece(); break;
+        }
+      });
+      
+      document.addEventListener('keyup', event => {
+        if (event.key === 'ArrowDown') {
+          fastDrop = false;
         }
       });
     }
