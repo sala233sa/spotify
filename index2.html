@@ -1,295 +1,299 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tetris - 99 Levels</title>
+  <meta charset="UTF-8">
+  <title>¡Pelea contra Sans!</title>
   <style>
     body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: #111;
+      background-color: rgb(151, 76, 128);
       color: white;
       font-family: Arial, sans-serif;
       margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    .container {
+      display: flex;
       flex-direction: column;
+      align-items: center;
     }
-    canvas {
-      border: 2px solid #fff;
-      background: black;
-    }
-    h1 {
-      position: absolute;
-      top: 20px;
-    }
-    .stats {
-      position: absolute;
-      bottom: 20px;
-    }
-    button {
+
+    .sans-box {
       margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #444;
+      border: 3px solid cyan;
+      border-radius: 20px;
+      padding: 10px;
+      width: 150px;
+      height: 150px;
+    }
+
+    .sans-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    #faseDisplay {
+      color: rgb(53, 17, 172);
+      font-size: 22px;
+      margin: 10px;
+    }
+
+    #gameCanvas {
+      background-color: #111;
+      border: 3px solid cyan;
+      margin: 20px auto;
+      display: block;
+    }
+
+    #hud {
+      color: red;
+      font-size: 20px;
+      margin-top: 10px;
+    }
+
+    .heart {
+      width: 20px;
+      vertical-align: middle;
+    }
+
+    #gameOver {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+
+    #gameOver h2 {
+      color: red;
+      font-size: 50px;
+      margin-bottom: 30px;
+    }
+
+    #restartButton {
+      padding: 15px 30px;
+      font-size: 20px;
+      background-color: #ff0000;
       color: white;
       border: none;
+      border-radius: 10px;
       cursor: pointer;
     }
-    button:hover {
-      background-color: #666;
+
+    #restartButton:hover {
+      background-color: #cc0000;
     }
   </style>
 </head>
 <body>
-  <h1>Tetris - 99 Levels</h1>
-  <canvas id="tetris" width="240" height="400"></canvas>
-  <div class="stats">
-    <p>Level: <span id="level">1</span></p>
-    <p>Lines: <span id="lines">0</span></p>
+  <div class="container">
+    <h1>¡Pelea contra Sans!</h1>
+
+    <div class="sans-box">
+      <img src="Sans.webp" alt="Sans">
+    </div>
+
+    <div id="faseDisplay">Fase: 1</div>
+
+    <canvas id="gameCanvas" width="500" height="300"></canvas>
+
+    <div id="hud">
+      <img class="heart" src="corazon.jpg" alt="Corazón"> HP: <span id="hp">100</span>
+    </div>
   </div>
-  <button id="startBtn">Empezar</button>
+
+  <div id="gameOver">
+    <h2>¡PERDISTE!</h2>
+    <button id="restartButton">Reintentar</button>
+  </div>
 
   <script>
-    const canvas = document.getElementById('tetris');
-    const context = canvas.getContext('2d');
-    context.scale(20, 20);
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const faseDisplay = document.getElementById("faseDisplay");
+    const hpDisplay = document.getElementById("hp");
+    const gameOverScreen = document.getElementById("gameOver");
+    const restartButton = document.getElementById("restartButton");
 
-    const levelDisplay = document.getElementById('level');
-    const linesDisplay = document.getElementById('lines');
-    const startBtn = document.getElementById('startBtn');
+    // Variables del juego
+    let fase = 1;
+    let hp = 100;
+    let gameActive = true;
+    let lastHitTime = 0;
+    const hitCooldown = 500; // 0.5 segundos entre golpes
 
-    // Colores para cada pieza
-    const colors = {
-      I: '#00FFFF',  // Cyan
-      O: '#FFFF00',  // Amarillo
-      T: '#AA00FF',  // Púrpura
-      S: '#00FF00',  // Verde
-      Z: '#FF0000',  // Rojo
-      J: '#0000FF',  // Azul
-      L: '#FFA500'   // Naranja
+    // Configuración del jugador
+    const player = {
+      x: canvas.width / 2 - 20,
+      y: canvas.height - 60,
+      width: 40,
+      height: 40,
+      img: new Image()
     };
+    player.img.src = "corazon.jpg";
 
-    const arena = createMatrix(12, 20);
-    let dropCounter = 0;
-    let dropInterval = 1000;
-    let lastTime = 0;
-    let linesCleared = 0;
-    let level = 1;
-    let gameOver = false;
-    let currentPiece = null;
+    // Enemigos por fase
+    const enemyImages = ["ajolote.gif", "cree.gif", "esqueleto.jpg"];
+    let enemies = [];
 
-    const tetrominos = [
-      { shape: [[0, 0, 0, 0],
-               [1, 1, 1, 1],
-               [0, 0, 0, 0],
-               [0, 0, 0, 0]], type: 'I' },
-      { shape: [[1, 1],
-               [1, 1]], type: 'O' },
-      { shape: [[0, 1, 0],
-               [1, 1, 1],
-               [0, 0, 0]], type: 'T' },
-      { shape: [[0, 1, 1],
-               [1, 1, 0],
-               [0, 0, 0]], type: 'S' },
-      { shape: [[1, 1, 0],
-               [0, 1, 1],
-               [0, 0, 0]], type: 'Z' },
-      { shape: [[1, 0, 0],
-               [1, 1, 1],
-               [0, 0, 0]], type: 'J' },
-      { shape: [[0, 0, 1],
-               [1, 1, 1],
-               [0, 0, 0]], type: 'L' }
+    // Patrones de movimiento por fase
+    const movementPatterns = [
+      // Fase 1: Caen desde arriba
+      (enemy) => {
+        enemy.y += enemy.speed;
+        if (enemy.y > canvas.height) {
+          enemy.y = -40;
+          enemy.x = Math.random() * (canvas.width - 40);
+        }
+      },
+      // Fase 2: Vienen desde la izquierda
+      (enemy) => {
+        enemy.x += enemy.speed;
+        if (enemy.x > canvas.width) {
+          enemy.x = -40;
+          enemy.y = Math.random() * (canvas.height - 40);
+        }
+      },
+      // Fase 3: Patrón de camino (zigzag)
+      (enemy) => {
+        enemy.x += Math.cos(enemy.time * 0.05) * enemy.speed * 2;
+        enemy.y += enemy.speed;
+        enemy.time++;
+        
+        if (enemy.y > canvas.height) {
+          enemy.y = -40;
+          enemy.x = Math.random() * (canvas.width - 40);
+          enemy.time = 0;
+        }
+      }
     ];
 
-    function createMatrix(w, h) {
-      const matrix = [];
-      while (h--) matrix.push(new Array(w).fill(0));
-      return matrix;
-    }
-
-    function createPiece() {
-      const rand = Math.floor(Math.random() * tetrominos.length);
-      const piece = JSON.parse(JSON.stringify(tetrominos[rand])); // Deep copy
-      return {
-        shape: piece.shape,
-        type: piece.type,
-        x: Math.floor(arena[0].length / 2) - Math.floor(piece.shape[0].length / 2),
-        y: 0
-      };
-    }
-
-    function rotate(matrix) {
-      const N = matrix.length;
-      const result = [];
-      for (let i = 0; i < N; i++) {
-        result.push([]);
-        for (let j = 0; j < N; j++) {
-          result[i][j] = matrix[N - j - 1][i];
-        }
-      }
-      return result;
-    }
-
-    function rotatePiece() {
-      if (gameOver) return;
-      
-      const originalShape = currentPiece.shape;
-      const rotated = rotate(currentPiece.shape);
-      
-      // Para la pieza O (cuadrado), no rotamos
-      if (currentPiece.type === 'O') return;
-      
-      currentPiece.shape = rotated;
-      if (collide(arena, currentPiece)) {
-        currentPiece.shape = originalShape; // Revertir si hay colisión
-      }
-    }
-
-    function collide(arena, piece) {
-      for (let y = 0; y < piece.shape.length; y++) {
-        for (let x = 0; x < piece.shape[y].length; x++) {
-          if (piece.shape[y][x] !== 0 &&
-              (arena[y + piece.y] === undefined || 
-               arena[y + piece.y][x + piece.x] === undefined || 
-               arena[y + piece.y][x + piece.x] !== 0)) {
-            return true;
-          }
-        }
-      }
-      return false;
-    }
-
-    function merge(arena, piece) {
-      piece.shape.forEach((row, y) => {
-        row.forEach((value, x) => {
-          if (value !== 0) {
-            arena[y + piece.y][x + piece.x] = piece.type;
-          }
+    function spawnEnemies() {
+      enemies = [];
+      for (let i = 0; i < fase + 1; i++) {
+        const img = new Image();
+        img.src = enemyImages[fase - 1]; // Cada fase usa su propia imagen
+        enemies.push({
+          x: Math.random() * (canvas.width - 40),
+          y: fase === 1 ? Math.random() * -200 : 
+             fase === 2 ? Math.random() * (canvas.height - 40) : 
+             Math.random() * -200,
+          width: 40,
+          height: 40,
+          img: img,
+          speed: 1 + fase * 0.5,
+          time: 0
         });
+      }
+    }
+
+    function checkCollisions() {
+      const now = Date.now();
+      if (now - lastHitTime < hitCooldown) return;
+
+      enemies.forEach(enemy => {
+        if (
+          enemy.x < player.x + player.width &&
+          enemy.x + enemy.width > player.x &&
+          enemy.y < player.y + player.height &&
+          enemy.y + enemy.height > player.y
+        ) {
+          hp -= 10;
+          lastHitTime = now;
+          
+          if (hp <= 0) {
+            hp = 0;
+            gameOver();
+          }
+        }
       });
     }
 
-    function clearLines() {
-      outer: for (let y = arena.length - 1; y >= 0; y--) {
-        for (let x = 0; x < arena[y].length; x++) {
-          if (arena[y][x] === 0) {
-            continue outer;
-          }
-        }
-        
-        const row = arena.splice(y, 1)[0];
-        arena.unshift(new Array(row.length).fill(0));
-        linesCleared++;
-        linesDisplay.textContent = linesCleared;
+    function updateEnemies() {
+      enemies.forEach(enemy => {
+        movementPatterns[fase - 1](enemy);
+      });
+    }
 
-        if (linesCleared % 10 === 0 && level < 99) {
-          level++;
-          dropInterval = Math.max(100, dropInterval - 50);
-          levelDisplay.textContent = level;
-        }
-        
-        y++; // Revisar la misma fila otra vez
-      }
+    function drawPlayer() {
+      ctx.drawImage(player.img, player.x, player.y, player.width, player.height);
+    }
+
+    function drawEnemies() {
+      enemies.forEach(enemy => {
+        ctx.drawImage(enemy.img, enemy.x, enemy.y, enemy.width, enemy.height);
+      });
     }
 
     function draw() {
-      context.fillStyle = '#000';
-      context.fillRect(0, 0, canvas.width, canvas.height);
-      
-      drawMatrix(arena, { x: 0, y: 0 });
-      
-      if (currentPiece) {
-        drawMatrix(currentPiece.shape, currentPiece, currentPiece.type);
-      }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawPlayer();
+      drawEnemies();
     }
 
-    function drawMatrix(matrix, offset, type = null) {
-      matrix.forEach((row, y) => {
-        row.forEach((value, x) => {
-          if (value !== 0) {
-            context.fillStyle = colors[type || value];
-            context.fillRect(x + offset.x, y + offset.y, 1, 1);
-            
-            // Borde para mejor visibilidad
-            context.strokeStyle = '#000';
-            context.lineWidth = 0.05;
-            context.strokeRect(x + offset.x, y + offset.y, 1, 1);
-          }
-        });
-      });
+    function updateHUD() {
+      faseDisplay.textContent = "Fase: " + fase;
+      hpDisplay.textContent = hp;
     }
 
-    function update(time = 0) {
-      if (gameOver) return;
+    function gameOver() {
+      gameActive = false;
+      gameOverScreen.style.display = "flex";
+    }
+
+    function resetGame() {
+      fase = 1;
+      hp = 100;
+      gameActive = true;
+      spawnEnemies();
+      updateHUD();
+      gameOverScreen.style.display = "none";
+    }
+
+    function gameLoop() {
+      if (gameActive) {
+        checkCollisions();
+        updateEnemies();
+        draw();
+        updateHUD();
+      }
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Mover el corazón con el mouse
+    canvas.addEventListener("mousemove", function (e) {
+      if (!gameActive) return;
       
-      const deltaTime = time - lastTime;
-      lastTime = time;
-      dropCounter += deltaTime;
-
-      if (dropCounter > dropInterval) {
-        drop();
-        dropCounter = 0;
-      }
-
-      draw();
-      requestAnimationFrame(update);
-    }
-
-    function move(dir) {
-      if (gameOver) return;
-      
-      currentPiece.x += dir;
-      if (collide(arena, currentPiece)) {
-        currentPiece.x -= dir;
-      }
-    }
-
-    function drop() {
-      currentPiece.y++;
-      if (collide(arena, currentPiece)) {
-        currentPiece.y--;
-        merge(arena, currentPiece);
-        clearLines();
-        currentPiece = createPiece();
-        if (collide(arena, currentPiece)) {
-          gameOver = true;
-          alert("Game Over!");
-          startBtn.style.display = 'block';
-        }
-      }
-    }
-
-    document.addEventListener('keydown', event => {
-      if (gameOver) return;
-      
-      switch (event.key) {
-        case 'ArrowLeft': move(-1); break;
-        case 'ArrowRight': move(1); break;
-        case 'ArrowDown': drop(); break;
-        case 'ArrowUp': rotatePiece(); break;
-      }
+      const rect = canvas.getBoundingClientRect();
+      player.x = Math.max(0, Math.min(canvas.width - player.width, e.clientX - rect.left - player.width / 2));
+      player.y = Math.max(0, Math.min(canvas.height - player.height, e.clientY - rect.top - player.height / 2));
     });
 
-    function initGame() {
-      arena.forEach(row => row.fill(0));
-      linesCleared = 0;
-      level = 1;
-      dropInterval = 1000;
-      levelDisplay.textContent = level;
-      linesDisplay.textContent = linesCleared;
-      currentPiece = createPiece();
-      gameOver = false;
-      lastTime = 0;
-      dropCounter = 0;
-      
-      startBtn.style.display = 'none';
-      update();
-    }
+    // Avanzar de fase cada 15 segundos
+    setInterval(() => {
+      if (gameActive && fase < movementPatterns.length) {
+        fase++;
+        spawnEnemies();
+        updateHUD();
+      }
+    }, 15000);
 
-    startBtn.addEventListener('click', initGame);
+    // Botón de reinicio
+    restartButton.addEventListener("click", resetGame);
+
+    // Iniciar el juego
+    player.img.onload = () => {
+      spawnEnemies();
+      gameLoop();
+    };
   </script>
 </body>
 </html>
