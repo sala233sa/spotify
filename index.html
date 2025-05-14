@@ -1,94 +1,185 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login para Tetris</title>
+  <title> 🌟 nozo 🌟</title>
   <style>
-    body {
+    #miFormulario {
       background-color: #C8A2C8;
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
+      padding-top: 10px;
+      height: 919px;
+      color:rgb(232, 48, 155);
+      border-radius: 30px;
+      border-color: rgb(24, 44, 129);
       align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-    
-    .login-container {
-      background-color: white;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
       text-align: center;
-      width: 300px;
+      border-style: dotted;
+      border-color: aqua;
+      box-shadow: 20px 20px 0 0 palevioletred;
     }
-    
-    h1 {
-      color: #8A2BE2;
-      margin-bottom: 20px;
+    body {
+      background-color: rgb(248, 71, 218);
     }
-    
-    input {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border: 2px solid #9370DB;
-      border-radius: 5px;
-      box-sizing: border-box;
-    }
-    
     button {
-      background-color: #9370DB;
-      color: white;
-      border: none;
-      padding: 12px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-      margin-top: 15px;
-      width: 100%;
-      transition: background-color 0.3s;
+      background-color: rgb(207, 47, 135);
+      width: 300px;
+      border-radius: 30px;
+      border-style: dotted;
+      height: 40px;
+      margin: 5px;
     }
-    
     button:hover {
-      background-color: #8A2BE2;
+      background-color: rgb(236, 115, 224);
+      border-color: rgb(140, 14, 104);
     }
-    
-    .tetris-btn {
+    .imagen {
+      width: 150px;
+      height: 140px;
+      align-items: center;
+      text-align: center;
+      border-radius: 20px;
+      border-style: double;
+      padding: 4px;
+    }
+    #nombre, #video {
+      border-radius: 20px;
+      width: 300px;
+      text-align: center;
+      border-style: dotted;
+      height: 40px;
+    }
+    .creeper {
+      width: 100px;
+      align-items: center;
+      text-align: center;
+      border-radius: 20px;
+      border-style: double;
+      padding: 4px;
+    }
+    .creeper:hover {
+      transition: 3ms;
+      background-color: aqua;
+    }
+    .imagen:hover {
+      background-color: rgb(255, 13, 199);
+    }
+    .genshin:hover {
+      transition: 3ms;
+      background-color: rgb(22, 185, 207);
+    }
+    h1 {
+      border-radius: 30px;
+      color: aqua;
+    }
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #btnIndex2 {
       background-color: #4B0082;
-      margin-top: 10px;
+      color: white;
     }
-    
-    .tetris-btn:hover {
+    #btnIndex2:hover {
       background-color: #6A5ACD;
     }
   </style>
 </head>
 <body>
-  <div class="login-container">
-    <h1>Login</h1>
+
+  <form id="miFormulario">
+    <img src="cree.gif" alt="minecraft" class="creeper">
+    <img src="cree.gif" alt="minecraft" class="creeper">
+    <img src="cree.gif" alt="minecraft" class="creeper">
+    <img src="cree.gif" alt="minecraft" class="creeper">  
+    <img src="Captura de pantalla 2025-03-14 072725.png" alt="imagen jsjsj" class="imagen">  
+    <img src="cree.gif" alt="minecraft" class="creeper">
+    <img src="cree.gif" alt="minecraft" class="creeper">
+    <img src="cree.gif" alt="minecraft" class="creeper">
+    <img src="cree.gif" alt="minecraft" class="creeper">
     
-    <form id="loginForm">
-      <input type="text" placeholder="Usuario" required>
-      <input type="password" placeholder="Contraseña" required>
-      
-      <button type="submit">Ingresar</button>
-      <button type="button" id="tetrisBtn" class="tetris-btn">Jugar Tetris</button>
-    </form>
-  </div>
+    <br><br>
+   
+    <h1> 
+      <img src="corazon.jpg" alt="minecraft" class="creeper">
+      <img src="corazon.jpg" alt="minecraft" class="creeper">
+      🎊feliz cumpleeeee🎊 
+      <img src="corazon.jpg" alt="minecraft" class="creeper">
+      <img src="corazon.jpg" alt="minecraft" class="creeper">
+    </h1>
+   
+    <br>
+    <img src="gato2.gif" alt="minecraft" class="creeper">
+    <label for="nombre"></label> ⭐
+    <input type="text" id="nombre" name="nombre" placeholder="nombre" required /> ⭐
+    <img src="ajolote.gif" alt="minecraft" class="creeper">
+    <br>
+    <img src="ajolote.gif" alt="minecraft" class="creeper">
+    ⭐<input type="text" id="video" name="video" placeholder="videojuego favorito" required /> ⭐
+    <img src="gato2.gif" alt="minecraft" class="creeper"><br>
+    
+    <div class="button-container">
+      <button type="submit" class="button">Enviar</button>
+      <button type="button" id="btnIndex2" class="button">Ir a Tetris</button>
+    </div>
+    
+    <img src="ajolote.gif" alt="minecraft" class="creeper">
+    <br><br><br><br> 
+    
+    <img src="minecraft.gif" alt="minecraft" class="creeper">
+    <img src="minecraft.gif" alt="minecraft" class="creeper">
+    <img src="minecraft.gif" alt="minecraft" class="creeper">
+    <img src="minecraft.gif" alt="minecraft" class="creeper">
+    <img src="esqueleto.jpg" alt="minecraft" class="creeper">
+    <img src="minecraft.gif" alt="minecraft" class="creeper">
+    <img src="minecraft.gif" alt="minecraft" class="creeper">
+    <img src="minecraft.gif" alt="minecraft" class="creeper">
+    <img src="minecraft.gif" alt="minecraft" class="creeper">
+  </form>
+
+  <p id="mensajeError" style="color: red;"></p>
 
   <script>
-    // Botón para ir directamente a Tetris
-    document.getElementById("tetrisBtn").addEventListener("click", function() {
-      window.location.href = "index2.html";
+    alert("jsjjs holisss");
+    alert("feliz cumpleeeee ");
+    alert("espero te guste jsjsj");
+
+    document.getElementById("miFormulario").addEventListener("submit", function(event) {
+      event.preventDefault(); // Prevenimos el envío normal del formulario
+      
+      const nombre = document.getElementById("nombre").value.trim().toLowerCase();
+      const videojuego = document.getElementById("video").value.trim().toLowerCase();
+      const mensajeError = document.getElementById("mensajeError");
+
+      const nombresValidos = ["nozo", "karla", "estefania"];
+      const videojuegosValidos = {
+        "minecraft": "minecraft.html",
+        "undertale": "undertale.html",
+        "five nights at freddy's": "fnaf.html",
+        "fnaf": "fnaf.html",
+        "sonic": "sonic.html",
+        "genshin impact": "genshin.html",
+        "genshin": "genshin.html"
+      };
+
+      if (!nombresValidos.includes(nombre)) {
+        mensajeError.textContent = 'Nombre no válido';
+        return;
+      }
+
+      if (!Object.keys(videojuegosValidos).includes(videojuego)) {
+        mensajeError.textContent = 'Videojuego no válido';
+        return;
+      }
+
+      // Redirigimos a la página correspondiente
+      window.location.href = videojuegosValidos[videojuego];
     });
 
-    // Validación del formulario (opcional)
-    document.getElementById("loginForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      alert("Login exitoso! (esto es solo una demostración)");
-      // Aquí podrías agregar lógica de autenticación real
+    // Botón para ir directamente a index2.html (Tetris)
+    document.getElementById("btnIndex2").addEventListener("click", function() {
+      window.location.href = "index2.html";
     });
   </script>
 </body>
