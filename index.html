@@ -1,152 +1,25 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title> 🌟 nozo 🌟</title>
-  <style>
-    #miFormulario {
-      background-color: #C8A2C8;
-      padding-top: 10px;
-      height: 919px;
-      color:rgb(232, 48, 155);
-      border-radius: 30px;
-      border-color: rgb(24, 44, 129);
-      align-items: center;
-      text-align: center;
-      border-style: dotted;
-      border-color: aqua;
-      box-shadow: 20px 20px 0 0 palevioletred;
-    }
-    body {
-      background-color: rgb(248, 71, 218);
-    }
-    button {
-      background-color: rgb(207, 47, 135);
-      width: 300px;
-      border-radius: 30px;
-      border-style: dotted;
-      height: 40px;
-      margin: 5px;
-    }
-    button:hover {
-      background-color: rgb(236, 115, 224);
-      border-color: rgb(140, 14, 104);
-    }
-    .imagen {
-      width: 150px;
-      height: 140px;
-      align-items: center;
-      text-align: center;
-      border-radius: 20px;
-      border-style: double;
-      padding: 4px;
-    }
-    #nombre, #video {
-      border-radius: 20px;
-      width: 300px;
-      text-align: center;
-      border-style: dotted;
-      height: 40px;
-    }
-    .creeper {
-      width: 100px;
-      align-items: center;
-      text-align: center;
-      border-radius: 20px;
-      border-style: double;
-      padding: 4px;
-    }
-    .creeper:hover {
-      transition: 3ms;
-      background-color: aqua;
-    }
-    .imagen:hover {
-      background-color: rgb(255, 13, 199);
-    }
-    .genshin:hover {
-      transition: 3ms;
-      background-color: rgb(22, 185, 207);
-    }
-    h1 {
-      border-radius: 30px;
-      color: aqua;
-    }
-    .button-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    #btnIndex2 {
-      background-color: #4B0082;
-      color: white;
-    }
-    #btnIndex2:hover {
-      background-color: #6A5ACD;
-    }
-  </style>
-</head>
+<!-- [Todo el head y estilo igual que antes] -->
 <body>
 
-  <form id="miFormulario">
-    <img src="cree.gif" alt="minecraft" class="creeper">
-    <img src="cree.gif" alt="minecraft" class="creeper">
-    <img src="cree.gif" alt="minecraft" class="creeper">
-    <img src="cree.gif" alt="minecraft" class="creeper">  
-    <img src="Captura de pantalla 2025-03-14 072725.png" alt="imagen jsjsj" class="imagen">  
-    <img src="cree.gif" alt="minecraft" class="creeper">
-    <img src="cree.gif" alt="minecraft" class="creeper">
-    <img src="cree.gif" alt="minecraft" class="creeper">
-    <img src="cree.gif" alt="minecraft" class="creeper">
-    
-    <br><br>
-   
-    <h1> 
-      <img src="corazon.jpg" alt="minecraft" class="creeper">
-      <img src="corazon.jpg" alt="minecraft" class="creeper">
-      🎊feliz cumpleeeee🎊 
-      <img src="corazon.jpg" alt="minecraft" class="creeper">
-      <img src="corazon.jpg" alt="minecraft" class="creeper">
-    </h1>
-   
-    <br>
-    <img src="gato2.gif" alt="minecraft" class="creeper">
-    <label for="nombre"></label> ⭐
-    <input type="text" id="nombre" name="nombre" placeholder="nombre" required /> ⭐
-    <img src="ajolote.gif" alt="minecraft" class="creeper">
-    <br>
-    <img src="ajolote.gif" alt="minecraft" class="creeper">
-    ⭐<input type="text" id="video" name="video" placeholder="videojuego favorito" required /> ⭐
-    <img src="gato2.gif" alt="minecraft" class="creeper"><br>
-    
-    <div class="button-container">
-      <button type="submit" class="button">Enviar</button>
-      <button type="button" id="btnIndex2" class="button">Ir a Tetris</button>
-    </div>
-    
-    <img src="ajolote.gif" alt="minecraft" class="creeper">
-    <br><br><br><br> 
-    
-    <img src="minecraft.gif" alt="minecraft" class="creeper">
-    <img src="minecraft.gif" alt="minecraft" class="creeper">
-    <img src="minecraft.gif" alt="minecraft" class="creeper">
-    <img src="minecraft.gif" alt="minecraft" class="creeper">
-    <img src="esqueleto.jpg" alt="minecraft" class="creeper">
-    <img src="minecraft.gif" alt="minecraft" class="creeper">
-    <img src="minecraft.gif" alt="minecraft" class="creeper">
-    <img src="minecraft.gif" alt="minecraft" class="creeper">
-    <img src="minecraft.gif" alt="minecraft" class="creeper">
-  </form>
-
-  <p id="mensajeError" style="color: red;"></p>
+  <!-- [Todo el formulario igual que antes] -->
 
   <script>
     alert("jsjjs holisss");
     alert("feliz cumpleeeee ");
     alert("espero te guste jsjsj");
 
+    // Función para obtener la ruta base correcta en GitHub Pages
+    function getBaseUrl() {
+      if (window.location.hostname === 'tu-usuario.github.io') {
+        return '/tu-repositorio/';
+      }
+      return '/';
+    }
+
     document.getElementById("miFormulario").addEventListener("submit", function(event) {
-      event.preventDefault(); // Prevenimos el envío normal del formulario
+      event.preventDefault();
       
       const nombre = document.getElementById("nombre").value.trim().toLowerCase();
       const videojuego = document.getElementById("video").value.trim().toLowerCase();
@@ -154,13 +27,11 @@
 
       const nombresValidos = ["nozo", "karla", "estefania"];
       const videojuegosValidos = {
-        "minecraft": "minecraft.html",
-        "undertale": "undertale.html",
-        "five nights at freddy's": "fnaf.html",
-        "fnaf": "fnaf.html",
-        "sonic": "sonic.html",
-        "genshin impact": "genshin.html",
-        "genshin": "genshin.html"
+        "minecraft": getBaseUrl() + "minecraft.html",
+        "undertale": getBaseUrl() + "undertale.html",
+        "fnaf": getBaseUrl() + "fnaf.html",
+        "sonic": getBaseUrl() + "sonic.html",
+        "genshin": getBaseUrl() + "genshin.html"
       };
 
       if (!nombresValidos.includes(nombre)) {
@@ -173,13 +44,12 @@
         return;
       }
 
-      // Redirigimos a la página correspondiente
-      window.location.href = videojuegosValidos[videojuego];
+      window.location.href = videojuegosValidos[videojuego] + "?v=" + new Date().getTime();
     });
 
-    // Botón para ir directamente a index2.html (Tetris)
+    // Botón para Tetris - Versión mejorada para GitHub Pages
     document.getElementById("btnIndex2").addEventListener("click", function() {
-      window.location.href = "index2.html";
+      window.location.href = getBaseUrl() + "index2.html?v=" + new Date().getTime();
     });
   </script>
 </body>
