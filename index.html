@@ -28,6 +28,7 @@
       border-radius: 30px;
       border-style: dotted;
       height: 40px;
+      margin: 5px;
     }
     button:hover {
       background-color: rgb(236, 115, 224);
@@ -72,6 +73,11 @@
       border-radius: 30px;
       color: aqua;
     }
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
   </style>
 </head>
 <body>
@@ -106,8 +112,13 @@
     <img src="ajolote.gif" alt="minecraft" class="creeper">
     ⭐<input type="text" id="video" name="video" placeholder="videojuego favorito" required /> ⭐
     <img src="gato2.gif" alt="minecraft" class="creeper"><br>
-    <img src="gato2.gif" alt="minecraft" class="creeper">🌟
-    <button type="submit" class="button">Enviar</button>  🌟<img src="ajolote.gif" alt="minecraft" class="creeper">
+    
+    <div class="button-container">
+      <button type="submit" class="button">Enviar</button>
+      <button type="button" id="btnIndex2" class="button">Ir a index2.html</button>
+    </div>
+    
+    <img src="ajolote.gif" alt="minecraft" class="creeper">
     <br><br><br><br> 
     
     <img src="minecraft.gif" alt="minecraft" class="creeper">
@@ -143,8 +154,7 @@
         "fnaf": "fnaf.html",
         "sonic": "sonic.html",
         "genshin impact": "genshin.html",
-        "genshin": "genshin.html",
-        "otro": "index2.html" // Nueva opción para redirigir a index2.html
+        "genshin": "genshin.html"
       };
 
       if (!nombresValidos.includes(nombre)) {
@@ -160,10 +170,14 @@
       // Redirigimos a la página correspondiente
       window.location.href = videojuegosValidos[videojuego];
     });
+
+    // Botón para ir directamente a index2.html
+    document.getElementById("btnIndex2").addEventListener("click", function() {
+      window.location.href = "index2.html";
+    });
   </script>
 </body>
 </html>
-
 
 
 
