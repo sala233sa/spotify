@@ -120,6 +120,7 @@
       margin-top: 20px;
       font-size: 14px;
       color: #aaa;
+      text-align: center;
     }
   </style>
 </head>
@@ -133,7 +134,9 @@
     </div>
     <button id="pauseBtn">Pausa</button>
     <div class="controls-info">
-      Toca izquierda/derecha para mover - Arriba para rotar - Mantén para bajar rápido
+      Toque simple: Rotar<br>
+      Deslizar izquierda/derecha: Mover<br>
+      Deslizar abajo: Bajar rápido
     </div>
   </div>
   
@@ -250,8 +253,6 @@
     let gameOver = false;
     let isPaused = false;
     let currentPiece = null;
-    let touchStartX = 0;
-    let touchStartY = 0;
     let colors = {
       'I': '#00FFFF',
       'O': '#FFFF00',
@@ -265,13 +266,15 @@
       'grid': '#333333'
     };
 
-    // Variables para control de toques
-    let fastDrop = false;
-    let fastDropInterval = 50; // Intervalo más rápido cuando se mantiene presionado
-    let touchEndTimeout = null;
+    // Variables para control táctil
+    let touchStartX = 0;
+    let touchStartY = 0;
     let isTouching = false;
-    let lastTouchTime = 0;
-    const doubleTapThreshold = 300; // ms para considerar doble toque
+    let touchMoved = false;
+    let fastDrop = false;
+    let fastDropInterval = 50;
+    let lastMoveTime = 0;
+    const moveDelay = 100; // ms entre movimientos al arrastrar
 
     // Piezas del Tetris
     const tetrominos = [
@@ -482,27 +485,50 @@
       
       e.preventDefault();
       isTouching = true;
-      const now = Date.now();
+      touchMoved = false;
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
       
-      // Detectar toque rápido (rotación)
-      if (now - lastTouchTime < doubleTapThreshold) {
-        rotatePiece();
-        lastTouchTime = 0;
-        return;
-      }
+      // Pequeño retraso para detectar si es un toque o arrastre
+      setTimeout(() => {
+        if (isTouching && !touchMoved) {
+          // Es un toque simple - rotar
+          rotatePiece();
+          isTouching = false;
+        }
+      }, 150);
+    }
+
+    function handleTouchMove(e) {
+      if (gameOver || isPaused || !isTouching) return;
       
-      lastTouchTime = now;
+      e.preventDefault();
       const touchX = e.touches[0].clientX;
-      const halfWidth = window.innerWidth / 2;
+      const touchY = e.touches[0].clientY;
+      const deltaX = touchX - touchStartX;
+      const deltaY = touchY - touchStartY;
       
-      // Mover izquierda/derecha
-      if (touchX < halfWidth - 50) {
-        move(-1);
-      } else if (touchX > halfWidth + 50) {
-        move(1);
-      } else {
-        // Centro - activar descenso rápido
-        fastDrop = true;
+      // Solo considerar movimiento después de un mínimo desplazamiento
+      if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
+        touchMoved = true;
+        
+        const now = Date.now();
+        if (now - lastMoveTime > moveDelay) {
+          // Mover horizontalmente
+          if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            move(deltaX > 0 ? 1 : -1);
+          } 
+          // Mover verticalmente (solo hacia abajo)
+          else if (deltaY > 0) {
+            fastDrop = true;
+          }
+          
+          lastMoveTime = now;
+        }
+        
+        // Actualizar posición de referencia para movimiento continuo
+        touchStartX = touchX;
+        touchStartY = touchY;
       }
     }
 
@@ -512,12 +538,6 @@
       e.preventDefault();
       isTouching = false;
       fastDrop = false;
-      
-      // Pequeño retraso para evitar rotación accidental después de soltar
-      if (touchEndTimeout) clearTimeout(touchEndTimeout);
-      touchEndTimeout = setTimeout(() => {
-        lastTouchTime = 0;
-      }, doubleTapThreshold);
     }
 
     // Funciones de pantalla
@@ -623,8 +643,8 @@
       
       // Controles táctiles mejorados
       canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+      canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
       canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
-      canvas.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
       
       // Controles de teclado (para probar en desktop)
       document.addEventListener('keydown', event => {
