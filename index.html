@@ -2,180 +2,94 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>¡Juego de Tetris!</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login para Tetris</title>
   <style>
     body {
-      background-color: rgb(151, 76, 128);
-      color: white;
+      background-color: #C8A2C8;
       font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-    }
-
-    .container {
       display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .game-box {
-      margin-top: 20px;
-      border: 3px solid cyan;
-      border-radius: 20px;
-      padding: 10px;
-      width: 150px;
-      height: 150px;
-    }
-
-    .game-box img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-
-    #faseDisplay {
-      color: rgb(53, 17, 172);
-      font-size: 22px;
-      margin: 10px;
-    }
-
-    #gameCanvas {
-      background-color: #111;
-      border: 3px solid cyan;
-      margin: 20px auto;
-      display: block;
-    }
-
-    #hud {
-      color: red;
-      font-size: 20px;
-      margin-top: 10px;
-    }
-
-    .heart {
-      width: 20px;
-      vertical-align: middle;
-    }
-
-    #gameOver {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.8);
-      flex-direction: column;
       justify-content: center;
       align-items: center;
-      z-index: 100;
+      height: 100vh;
+      margin: 0;
     }
-
-    #gameOver h2 {
-      color: red;
-      font-size: 50px;
-      margin-bottom: 30px;
+    
+    .login-container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      width: 300px;
     }
-
-    #restartButton {
-      padding: 15px 30px;
-      font-size: 20px;
-      background-color: #ff0000;
+    
+    h1 {
+      color: #8A2BE2;
+      margin-bottom: 20px;
+    }
+    
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 2px solid #9370DB;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+    
+    button {
+      background-color: #9370DB;
       color: white;
       border: none;
-      border-radius: 10px;
+      padding: 12px 20px;
+      border-radius: 5px;
       cursor: pointer;
+      font-size: 16px;
+      margin-top: 15px;
+      width: 100%;
+      transition: background-color 0.3s;
     }
-
-    #restartButton:hover {
-      background-color: #cc0000;
+    
+    button:hover {
+      background-color: #8A2BE2;
     }
-
-    #tetrisButton {
-      padding: 15px 30px;
-      font-size: 20px;
-      background-color: #00aa00;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      margin-top: 20px;
+    
+    .tetris-btn {
+      background-color: #4B0082;
+      margin-top: 10px;
     }
-
-    #tetrisButton:hover {
-      background-color: #008800;
+    
+    .tetris-btn:hover {
+      background-color: #6A5ACD;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>¡Juego de Tetris!</h1>
-
-    <div class="game-box">
-      <img src="tetris-block.png" alt="Bloque de Tetris">
-    </div>
-
-    <div id="faseDisplay">Fase: 1</div>
-
-    <canvas id="gameCanvas" width="500" height="300"></canvas>
-
-    <div id="hud">
-      <img class="heart" src="corazon.jpg" alt="Corazón"> HP: <span id="hp">100</span>
-    </div>
-
-    <button id="tetrisButton">Jugar Tetris</button>
-  </div>
-
-  <div id="gameOver">
-    <h2>¡PERDISTE!</h2>
-    <button id="restartButton">Reintentar</button>
+  <div class="login-container">
+    <h1>Login</h1>
+    
+    <form id="loginForm">
+      <input type="text" placeholder="Usuario" required>
+      <input type="password" placeholder="Contraseña" required>
+      
+      <button type="submit">Ingresar</button>
+      <button type="button" id="tetrisBtn" class="tetris-btn">Jugar Tetris</button>
+    </form>
   </div>
 
   <script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
-    const faseDisplay = document.getElementById("faseDisplay");
-    const hpDisplay = document.getElementById("hp");
-    const gameOverScreen = document.getElementById("gameOver");
-    const restartButton = document.getElementById("restartButton");
-    const tetrisButton = document.getElementById("tetrisButton");
-
-    // Configuración del juego
-    let fase = 1;
-    let hp = 100;
-    let gameActive = true;
-    let lastHitTime = 0;
-    const hitCooldown = 500;
-
-    // Configuración del jugador
-    const player = {
-      x: canvas.width / 2 - 20,
-      y: canvas.height - 60,
-      width: 40,
-      height: 40,
-      img: new Image()
-    };
-    player.img.src = "corazon.jpg";
-
-    // Configuración de enemigos
-    const enemyImages = ["tetris-I.png", "tetris-L.png", "tetris-T.png"];
-    let enemies = [];
-
-    // Función para redirigir a Tetris
-    tetrisButton.addEventListener("click", function() {
-      window.location.href = "index2.html"; // Redirige a index2.html
+    // Botón para ir directamente a Tetris
+    document.getElementById("tetrisBtn").addEventListener("click", function() {
+      window.location.href = "index2.html";
     });
 
-    // Resto del código del juego...
-    // [Aquí iría el resto de tu lógica de juego actual]
-
-    // Iniciar el juego
-    player.img.onload = () => {
-      spawnEnemies();
-      gameLoop();
-    };
+    // Validación del formulario (opcional)
+    document.getElementById("loginForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      alert("Login exitoso! (esto es solo una demostración)");
+      // Aquí podrías agregar lógica de autenticación real
+    });
   </script>
 </body>
 </html>
-
