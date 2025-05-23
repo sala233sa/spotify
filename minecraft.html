@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>¡Pelea contra Sans! (7x)</title>
+  <title>¡Pelea contra Sans! (ULTRA RÁPIDO)</title>
   <style>
     body {
       background-color: rgb(151, 76, 128);
@@ -91,11 +91,18 @@
     #restartButton:hover {
       background-color: #cc0000;
     }
+
+    .warning {
+      color: yellow;
+      font-size: 18px;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>¡Pelea contra Sans! (7x más rápido)</h1>
+    <h1>¡Pelea contra Sans! (MODO ULTRA RÁPIDO)</h1>
+    <div class="warning">¡ADVERTENCIA! Movimiento a 19px/segundo - Extremadamente difícil</div>
 
     <div class="sans-box">
       <img src="Sans.webp" alt="Sans">
@@ -124,12 +131,15 @@
     const restartButton = document.getElementById("restartButton");
 
     // Variables del juego
-    const speedMultiplier = 17; // Multiplicador de velocidad 7x
+    const PIXELS_PER_SECOND = 19; // Velocidad objetivo de 19px/segundo
+    const FRAME_RATE = 60; // Asumimos 60 FPS
+    const PIXELS_PER_FRAME = PIXELS_PER_SECOND / FRAME_RATE;
+    
     let fase = 1;
     let hp = 100;
     let gameActive = true;
     let lastHitTime = 0;
-    const hitCooldown = 500 / speedMultiplier; // Cooldown reducido proporcionalmente
+    const hitCooldown = 1000 / PIXELS_PER_SECOND; // Cooldown ajustado a la velocidad
 
     // Configuración del jugador
     const player = {
@@ -147,26 +157,26 @@
 
     // Patrones de movimiento por fase
     const movementPatterns = [
-      // Fase 1: Caen desde arriba (7x más rápido)
+      // Fase 1: Caen desde arriba (19px/segundo)
       (enemy) => {
-        enemy.y += enemy.speed * speedMultiplier;
+        enemy.y += PIXELS_PER_FRAME * enemy.speedMultiplier;
         if (enemy.y > canvas.height) {
           enemy.y = -40;
           enemy.x = Math.random() * (canvas.width - 40);
         }
       },
-      // Fase 2: Vienen desde la izquierda (7x más rápido)
+      // Fase 2: Vienen desde la izquierda (19px/segundo)
       (enemy) => {
-        enemy.x += enemy.speed * speedMultiplier;
+        enemy.x += PIXELS_PER_FRAME * enemy.speedMultiplier;
         if (enemy.x > canvas.width) {
           enemy.x = -40;
           enemy.y = Math.random() * (canvas.height - 40);
         }
       },
-      // Fase 3: Patrón de camino (zigzag) (7x más rápido)
+      // Fase 3: Patrón de camino (zigzag) (19px/segundo)
       (enemy) => {
-        enemy.x += Math.cos(enemy.time * 3 * speedMultiplier) * enemy.speed * 6 * speedMultiplier;
-        enemy.y += enemy.speed * speedMultiplier;
+        enemy.x += Math.cos(enemy.time * 0.05) * PIXELS_PER_FRAME * enemy.speedMultiplier * 2;
+        enemy.y += PIXELS_PER_FRAME * enemy.speedMultiplier;
         enemy.time++;
         
         if (enemy.y > canvas.height) {
@@ -179,9 +189,9 @@
 
     function spawnEnemies() {
       enemies = [];
-      for (let i = 0; i < fase + 1; i++) {
+      for (let i = 0; i < fase + 2; i++) { // +2 enemigos extra para mayor dificultad
         const img = new Image();
-        img.src = enemyImages[fase - 1]; // Cada fase usa su propia imagen
+        img.src = enemyImages[fase - 1];
         enemies.push({
           x: Math.random() * (canvas.width - 40),
           y: fase === 1 ? Math.random() * -200 : 
@@ -190,7 +200,7 @@
           width: 40,
           height: 40,
           img: img,
-          speed: (8 + fase * 0.5) * speedMultiplier, // Velocidad multiplicada
+          speedMultiplier: 1 + fase * 0.8, // Multiplicador de velocidad por fase
           time: 0
         });
       }
@@ -207,7 +217,7 @@
           enemy.y < player.y + player.height &&
           enemy.y + enemy.height > player.y
         ) {
-          hp -= 10;
+          hp -= 15; // Más daño por colisión
           lastHitTime = now;
           
           if (hp <= 0) {
@@ -269,23 +279,27 @@
       requestAnimationFrame(gameLoop);
     }
 
-    // Mover el corazón con el mouse
+    // Mover el corazón con el mouse (más sensible)
     canvas.addEventListener("mousemove", function (e) {
       if (!gameActive) return;
       
       const rect = canvas.getBoundingClientRect();
-      player.x = Math.max(0, Math.min(canvas.width - player.width, e.clientX - rect.left - player.width / 2));
-      player.y = Math.max(0, Math.min(canvas.height - player.height, e.clientY - rect.top - player.height / 2));
+      player.x = e.clientX - rect.left - player.width / 2;
+      player.y = e.clientY - rect.top - player.height / 2;
+      
+      // Limitar al canvas
+      player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
+      player.y = Math.max(0, Math.min(canvas.height - player.height, player.y));
     });
 
-    // Avanzar de fase cada ~2.14 segundos (15/7)
+    // Avanzar de fase cada 5 segundos (más rápido)
     setInterval(() => {
       if (gameActive && fase < movementPatterns.length) {
         fase++;
         spawnEnemies();
         updateHUD();
       }
-    }, 15000 / speedMultiplier);
+    }, 5000);
 
     // Botón de reinicio
     restartButton.addEventListener("click", resetGame);
@@ -294,6 +308,9 @@
     player.img.onload = () => {
       spawnEnemies();
       gameLoop();
+      
+      // Mostrar velocidad actual
+      console.log(`Configurado a ${PIXELS_PER_SECOND}px/segundo (${PIXELS_PER_FRAME.toFixed(4)}px/frame a ${FRAME_RATE}FPS)`);
     };
   </script>
 </body>
