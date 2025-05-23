@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>¡Pelea contra Sans! (ULTRA RÁPIDO)</title>
+  <title>¡Pelea contra Sans! (Fases Extremas)</title>
   <style>
     body {
       background-color: rgb(151, 76, 128);
@@ -97,18 +97,25 @@
       font-size: 18px;
       margin-top: 10px;
     }
+
+    #phaseTimer {
+      color: cyan;
+      font-size: 18px;
+      margin-top: 5px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>¡Pelea contra Sans! (MODO ULTRA RÁPIDO)</h1>
-    <div class="warning">¡ADVERTENCIA! Movimiento a 19px/segundo - Extremadamente difícil</div>
+    <h1>¡Pelea contra Sans! (Fases Extremas)</h1>
+    <div class="warning">Fase 1: Ultra rápida | Fase 2: Larga duración | Fase 3: Normal</div>
 
     <div class="sans-box">
       <img src="Sans.webp" alt="Sans">
     </div>
 
     <div id="faseDisplay">Fase: 1</div>
+    <div id="phaseTimer">Tiempo restante: 10s</div>
 
     <canvas id="gameCanvas" width="500" height="300"></canvas>
 
@@ -129,17 +136,26 @@
     const hpDisplay = document.getElementById("hp");
     const gameOverScreen = document.getElementById("gameOver");
     const restartButton = document.getElementById("restartButton");
+    const phaseTimerDisplay = document.getElementById("phaseTimer");
+
+    // Configuración de fases
+    const PHASE_CONFIG = [
+      { speed: 50, duration: 10 },  // Fase 1: 50px/s por 10 segundos
+      { speed: 15, duration: 30 },  // Fase 2: 15px/s por 30 segundos
+      { speed: 19, duration: 15 }   // Fase 3: 19px/s por 15 segundos
+    ];
 
     // Variables del juego
-    const PIXELS_PER_SECOND = 19; // Velocidad objetivo de 19px/segundo
-    const FRAME_RATE = 60; // Asumimos 60 FPS
-    const PIXELS_PER_FRAME = PIXELS_PER_SECOND / FRAME_RATE;
+    const FRAME_RATE = 60;
+    let currentSpeed = PHASE_CONFIG[0].speed;
+    let PIXELS_PER_FRAME = currentSpeed / FRAME_RATE;
     
     let fase = 1;
     let hp = 100;
     let gameActive = true;
     let lastHitTime = 0;
-    const hitCooldown = 1000 / PIXELS_PER_SECOND; // Cooldown ajustado a la velocidad
+    let phaseTimeLeft = PHASE_CONFIG[0].duration;
+    let phaseInterval;
 
     // Configuración del jugador
     const player = {
@@ -157,7 +173,7 @@
 
     // Patrones de movimiento por fase
     const movementPatterns = [
-      // Fase 1: Caen desde arriba (19px/segundo)
+      // Fase 1: Caída ultra rápida
       (enemy) => {
         enemy.y += PIXELS_PER_FRAME * enemy.speedMultiplier;
         if (enemy.y > canvas.height) {
@@ -165,7 +181,7 @@
           enemy.x = Math.random() * (canvas.width - 40);
         }
       },
-      // Fase 2: Vienen desde la izquierda (19px/segundo)
+      // Fase 2: Movimiento lateral prolongado
       (enemy) => {
         enemy.x += PIXELS_PER_FRAME * enemy.speedMultiplier;
         if (enemy.x > canvas.width) {
@@ -173,7 +189,7 @@
           enemy.y = Math.random() * (canvas.height - 40);
         }
       },
-      // Fase 3: Patrón de camino (zigzag) (19px/segundo)
+      // Fase 3: Patrón de zigzag normal
       (enemy) => {
         enemy.x += Math.cos(enemy.time * 0.05) * PIXELS_PER_FRAME * enemy.speedMultiplier * 2;
         enemy.y += PIXELS_PER_FRAME * enemy.speedMultiplier;
@@ -187,20 +203,29 @@
       }
     ];
 
+    function updatePhaseSpeed() {
+      currentSpeed = PHASE_CONFIG[fase-1].speed;
+      PIXELS_PER_FRAME = currentSpeed / FRAME_RATE;
+    }
+
     function spawnEnemies() {
       enemies = [];
-      for (let i = 0; i < fase + 2; i++) { // +2 enemigos extra para mayor dificultad
+      const enemyCount = fase === 2 ? 8 : fase + 3; // Más enemigos en fase 2
+      
+      for (let i = 0; i < enemyCount; i++) {
         const img = new Image();
         img.src = enemyImages[fase - 1];
         enemies.push({
-          x: Math.random() * (canvas.width - 40),
-          y: fase === 1 ? Math.random() * -200 : 
+          x: fase === 1 ? Math.random() * (canvas.width - 40) : 
+             fase === 2 ? -40 - Math.random() * 200 : 
+             Math.random() * (canvas.width - 40),
+          y: fase === 1 ? -40 - Math.random() * 200 : 
              fase === 2 ? Math.random() * (canvas.height - 40) : 
-             Math.random() * -200,
+             -40 - Math.random() * 200,
           width: 40,
           height: 40,
           img: img,
-          speedMultiplier: 1 + fase * 0.8, // Multiplicador de velocidad por fase
+          speedMultiplier: fase === 2 ? 0.8 : 1.5, // Ajuste para fase 2
           time: 0
         });
       }
@@ -208,6 +233,8 @@
 
     function checkCollisions() {
       const now = Date.now();
+      const hitCooldown = 1000 / currentSpeed; // Cooldown dinámico según velocidad
+
       if (now - lastHitTime < hitCooldown) return;
 
       enemies.forEach(enemy => {
@@ -217,7 +244,7 @@
           enemy.y < player.y + player.height &&
           enemy.y + enemy.height > player.y
         ) {
-          hp -= 15; // Más daño por colisión
+          hp -= fase === 1 ? 20 : 10; // Más daño en fase rápida
           lastHitTime = now;
           
           if (hp <= 0) {
@@ -253,10 +280,12 @@
     function updateHUD() {
       faseDisplay.textContent = "Fase: " + fase;
       hpDisplay.textContent = hp;
+      phaseTimerDisplay.textContent = "Tiempo restante: " + phaseTimeLeft + "s";
     }
 
     function gameOver() {
       gameActive = false;
+      clearInterval(phaseInterval);
       gameOverScreen.style.display = "flex";
     }
 
@@ -264,9 +293,38 @@
       fase = 1;
       hp = 100;
       gameActive = true;
+      phaseTimeLeft = PHASE_CONFIG[0].duration;
+      updatePhaseSpeed();
       spawnEnemies();
       updateHUD();
       gameOverScreen.style.display = "none";
+      startPhaseTimer();
+    }
+
+    function startPhaseTimer() {
+      clearInterval(phaseInterval);
+      
+      phaseInterval = setInterval(() => {
+        if (!gameActive) return;
+        
+        phaseTimeLeft--;
+        updateHUD();
+        
+        if (phaseTimeLeft <= 0) {
+          if (fase < PHASE_CONFIG.length) {
+            fase++;
+            phaseTimeLeft = PHASE_CONFIG[fase-1].duration;
+            updatePhaseSpeed();
+            spawnEnemies();
+          } else {
+            // Si quisieras que el juego continúe después de la última fase
+            fase = 1;
+            phaseTimeLeft = PHASE_CONFIG[0].duration;
+            updatePhaseSpeed();
+            spawnEnemies();
+          }
+        }
+      }, 1000);
     }
 
     function gameLoop() {
@@ -279,7 +337,7 @@
       requestAnimationFrame(gameLoop);
     }
 
-    // Mover el corazón con el mouse (más sensible)
+    // Control del jugador
     canvas.addEventListener("mousemove", function (e) {
       if (!gameActive) return;
       
@@ -287,30 +345,19 @@
       player.x = e.clientX - rect.left - player.width / 2;
       player.y = e.clientY - rect.top - player.height / 2;
       
-      // Limitar al canvas
       player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
       player.y = Math.max(0, Math.min(canvas.height - player.height, player.y));
     });
-
-    // Avanzar de fase cada 5 segundos (más rápido)
-    setInterval(() => {
-      if (gameActive && fase < movementPatterns.length) {
-        fase++;
-        spawnEnemies();
-        updateHUD();
-      }
-    }, 5000);
 
     // Botón de reinicio
     restartButton.addEventListener("click", resetGame);
 
     // Iniciar el juego
     player.img.onload = () => {
+      updatePhaseSpeed();
       spawnEnemies();
+      startPhaseTimer();
       gameLoop();
-      
-      // Mostrar velocidad actual
-      console.log(`Configurado a ${PIXELS_PER_SECOND}px/segundo (${PIXELS_PER_FRAME.toFixed(4)}px/frame a ${FRAME_RATE}FPS)`);
     };
   </script>
 </body>
