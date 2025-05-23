@@ -124,7 +124,7 @@
     const restartButton = document.getElementById("restartButton");
 
     // Variables del juego
-    const speedMultiplier = 7; // Multiplicador de velocidad 7x
+    const speedMultiplier = 17; // Multiplicador de velocidad 7x
     let fase = 1;
     let hp = 100;
     let gameActive = true;
@@ -165,7 +165,7 @@
       },
       // Fase 3: Patrón de camino (zigzag) (7x más rápido)
       (enemy) => {
-        enemy.x += Math.cos(enemy.time * 0.05 * speedMultiplier) * enemy.speed * 2 * speedMultiplier;
+        enemy.x += Math.cos(enemy.time * 3 * speedMultiplier) * enemy.speed * 6 * speedMultiplier;
         enemy.y += enemy.speed * speedMultiplier;
         enemy.time++;
         
@@ -190,7 +190,7 @@
           width: 40,
           height: 40,
           img: img,
-          speed: (1 + fase * 0.5) * speedMultiplier, // Velocidad multiplicada
+          speed: (8 + fase * 0.5) * speedMultiplier, // Velocidad multiplicada
           time: 0
         });
       }
