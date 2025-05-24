@@ -92,12 +92,6 @@
       background-color: #cc0000;
     }
 
-    .warning {
-      color: yellow;
-      font-size: 18px;
-      margin-top: 10px;
-    }
-
     #phaseTimer {
       color: cyan;
       font-size: 18px;
@@ -108,7 +102,6 @@
 <body>
   <div class="container">
     <h1>¡Pelea contra Sans! (Fases Extremas)</h1>
-    <div class="warning">Fase 1: Ultra rápida | Fase 2: Velocidad brutal | Fase 3: Imparable</div>
 
     <div class="sans-box">
       <img src="Sans.webp" alt="Sans">
@@ -138,11 +131,11 @@
     const restartButton = document.getElementById("restartButton");
     const phaseTimerDisplay = document.getElementById("phaseTimer");
 
-    // ⚡ CONFIGURACIÓN EXTREMADAMENTE RÁPIDA
+    // 💥 Ajustes de velocidad agresiva
     const PHASE_CONFIG = [
-      { speed: 200, duration: 10 },  // Fase 1: Muy rápida
-      { speed: 90, duration: 30 },   // Fase 2: Rápida lateral
-      { speed: 120, duration: 15 }   // Fase 3: Zigzag veloz
+      { speed: 500, duration: 10 },  // Fase 1: caída brutal
+      { speed: 300, duration: 25 },  // Fase 2: rápido lateral
+      { speed: 400, duration: 20 }   // Fase 3: zigzag rápido
     ];
 
     const FRAME_RATE = 60;
@@ -184,7 +177,7 @@
         }
       },
       (enemy) => {
-        enemy.x += Math.cos(enemy.time * 0.05) * PIXELS_PER_FRAME * enemy.speedMultiplier * 2;
+        enemy.x += Math.cos(enemy.time * 0.1) * PIXELS_PER_FRAME * enemy.speedMultiplier * 3;
         enemy.y += PIXELS_PER_FRAME * enemy.speedMultiplier;
         enemy.time++;
         if (enemy.y > canvas.height) {
@@ -216,7 +209,7 @@
           width: 40,
           height: 40,
           img: img,
-          speedMultiplier: fase === 2 ? 1.0 : 2.5,
+          speedMultiplier: fase === 2 ? 1.5 : 2.5,
           time: 0
         });
       }
@@ -224,10 +217,8 @@
 
     function checkCollisions() {
       const now = Date.now();
-      const hitCooldown = 500; // más estricto
-
+      const hitCooldown = 500;
       if (now - lastHitTime < hitCooldown) return;
-
       enemies.forEach(enemy => {
         if (
           enemy.x < player.x + player.width &&
@@ -235,7 +226,7 @@
           enemy.y < player.y + player.height &&
           enemy.y + enemy.height > player.y
         ) {
-          hp -= fase === 1 ? 25 : 15;
+          hp -= fase === 1 ? 30 : 20;
           lastHitTime = now;
           if (hp <= 0) {
             hp = 0;
@@ -343,4 +334,5 @@
   </script>
 </body>
 </html>
+
 
