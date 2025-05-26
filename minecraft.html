@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>¡Pelea contra Sans! (Fases Extremas)</title>
+  <title>¡Pelea contra Sans! (Fases Moderadas)</title>
   <style>
     body {
       background-color: rgb(151, 76, 128);
@@ -101,7 +101,7 @@
 </head>
 <body>
   <div class="container">
-    <h1>¡Pelea contra Sans! (Fases Extremas)</h1>
+    <h1>¡Pelea contra Sans! (Fases Moderadas)</h1>
 
     <div class="sans-box">
       <img src="Sans.webp" alt="Sans">
@@ -131,11 +131,11 @@
     const restartButton = document.getElementById("restartButton");
     const phaseTimerDisplay = document.getElementById("phaseTimer");
 
-    // 💥 Ajustes de velocidad agresiva
+    // ⚙️ Ajustes moderados
     const PHASE_CONFIG = [
-      { speed: 70, duration: 20 },  // Fase 1: caída brutal
-      { speed: 300, duration: 25 },  // Fase 2: rápido lateral
-      { speed: 400, duration: 20 }   // Fase 3: zigzag rápido
+      { speed: 30, duration: 20 },
+      { speed: 80, duration: 25 },
+      { speed: 120, duration: 20 }
     ];
 
     const FRAME_RATE = 60;
@@ -177,7 +177,7 @@
         }
       },
       (enemy) => {
-        enemy.x += Math.cos(enemy.time * 0.1) * PIXELS_PER_FRAME * enemy.speedMultiplier * 3;
+        enemy.x += Math.cos(enemy.time * 0.1) * PIXELS_PER_FRAME * enemy.speedMultiplier * 2;
         enemy.y += PIXELS_PER_FRAME * enemy.speedMultiplier;
         enemy.time++;
         if (enemy.y > canvas.height) {
@@ -189,27 +189,27 @@
     ];
 
     function updatePhaseSpeed() {
-      currentSpeed = PHASE_CONFIG[fase-1].speed;
+      currentSpeed = PHASE_CONFIG[fase - 1].speed;
       PIXELS_PER_FRAME = currentSpeed / FRAME_RATE;
     }
 
     function spawnEnemies() {
       enemies = [];
-      const enemyCount = fase === 2 ? 10 : fase + 4;
+      const enemyCount = fase === 2 ? 5 : fase + 2; // Menos enemigos
       for (let i = 0; i < enemyCount; i++) {
         const img = new Image();
         img.src = enemyImages[fase - 1];
         enemies.push({
-          x: fase === 1 ? Math.random() * (canvas.width - 40) : 
-             fase === 2 ? -40 - Math.random() * 200 : 
+          x: fase === 1 ? Math.random() * (canvas.width - 40) :
+             fase === 2 ? -40 - Math.random() * 200 :
              Math.random() * (canvas.width - 40),
-          y: fase === 1 ? -40 - Math.random() * 200 : 
-             fase === 2 ? Math.random() * (canvas.height - 40) : 
+          y: fase === 1 ? -40 - Math.random() * 200 :
+             fase === 2 ? Math.random() * (canvas.height - 40) :
              -40 - Math.random() * 200,
           width: 40,
           height: 40,
           img: img,
-          speedMultiplier: fase === 2 ? 1.5 : 2.5,
+          speedMultiplier: 1, // Más lento
           time: 0
         });
       }
@@ -226,7 +226,7 @@
           enemy.y < player.y + player.height &&
           enemy.y + enemy.height > player.y
         ) {
-          hp -= fase === 1 ? 30 : 20;
+          hp -= 15; // Daño más manejable
           lastHitTime = now;
           if (hp <= 0) {
             hp = 0;
@@ -291,7 +291,7 @@
         if (phaseTimeLeft <= 0) {
           if (fase < PHASE_CONFIG.length) {
             fase++;
-            phaseTimeLeft = PHASE_CONFIG[fase-1].duration;
+            phaseTimeLeft = PHASE_CONFIG[fase - 1].duration;
             updatePhaseSpeed();
             spawnEnemies();
           } else {
@@ -334,5 +334,4 @@
   </script>
 </body>
 </html>
-
 
